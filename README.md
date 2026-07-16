@@ -27,7 +27,7 @@ See [SUPPORT.md](SUPPORT.md) for lifecycle dates.
 Every managed-node image provides the same baseline:
 
 - unprivileged SSH mode by default;
-- a locked `learner` password with key-only authentication;
+- an unusable `learner` password hash with key-only authentication;
 - passwordless sudo for disposable lab exercises;
 - public keys supplied at runtime, never baked into an image;
 - SSH host keys generated when a container starts;
@@ -94,7 +94,7 @@ The contract runner builds a separate pinned controller containing
 
 1. failure when no public key is provided;
 2. unprivileged SSH and the hardened SSH configuration;
-3. locked-password key authentication and passwordless sudo;
+3. an unusable password hash, key authentication and passwordless sudo;
 4. distribution and Python facts;
 5. package, user and file automation through external Ansible;
 6. `changed=0` on an unchanged second playbook run;

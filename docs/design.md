@@ -15,8 +15,8 @@ images from silently testing against a second automation installation.
 
 ## Authentication boundary
 
-The `learner` password is locked. The entrypoint refuses to start its managed
-service unless it receives at least one supported public key through a file.
+The `learner` account has an unusable `*` password hash. The entrypoint refuses
+to start its managed service unless it receives at least one supported public key through a file.
 Private-key markers and malformed lines are rejected. Compose uses a runtime
 secret mounted at `/run/secrets/authorized_keys`.
 

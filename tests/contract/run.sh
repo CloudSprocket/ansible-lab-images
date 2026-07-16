@@ -93,14 +93,16 @@ run_controller_contract() {
   local key_path tests_path
   key_path="$(docker_path "$temp_dir/id_ed25519")"
   tests_path="$(docker_path "$ROOT_DIR/tests")"
-  docker run --rm \
+  if ! docker run --rm \
     --network "$network" \
     --mount "type=bind,source=${key_path},target=/keys/id_ed25519,readonly" \
     --mount "type=bind,source=${tests_path},target=/tests,readonly" \
     cloudsprocket/ansible-contract:dev \
     /tests/contract/controller-contract.sh \
     "$mode" "$container" /keys/id_ed25519 \
-    "$expected_id" "$expected_major" "$expected_distribution"
+    "$expected_id" "$expected_major" "$expected_distribution"; then
+    fail_with_logs "$container"
+  fi
 }
 
 ssh-keygen -q -t ed25519 -N "" -C "ansible-contract" -f "$temp_dir/id_ed25519"

@@ -55,7 +55,7 @@ ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "permitrootlogin no"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "authenticationmethods publickey"'
 # The awk expression is intentionally evaluated on the managed node.
 # shellcheck disable=SC2016
-ssh_run 'sudo getent shadow learner | awk -F: '\''$2 ~ /^[!*]/ {found=1} END {exit !found}'\'''
+ssh_run 'sudo getent shadow learner | awk -F: '\''$2 == "*" {found=1} END {exit !found}'\'''
 ssh_run "source /etc/os-release; test \"\$ID\" = '$expected_id'"
 ssh_run "source /etc/os-release; case \"\$VERSION_ID\" in '$expected_major'*) ;; *) exit 1 ;; esac"
 

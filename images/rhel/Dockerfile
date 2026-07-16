@@ -32,7 +32,7 @@ RUN dnf -y upgrade --refresh \
 
 RUN useradd --create-home --shell /bin/bash learner \
     && usermod --append --groups wheel learner \
-    && passwd --lock learner \
+    && usermod --password '*' learner \
     && printf '%s\n' 'learner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/90-lab-user \
     && chmod 0440 /etc/sudoers.d/90-lab-user
 
