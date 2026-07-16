@@ -6,7 +6,6 @@ units=(
   dev-hugepages.mount
   dev-mqueue.mount
   getty.target
-  systemd-logind.service
   systemd-modules-load.service
   systemd-networkd.service
   systemd-networkd.socket

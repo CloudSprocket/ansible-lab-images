@@ -12,6 +12,12 @@
           - ansible_facts.distribution_major_version == expected_major
           - ansible_facts.python.version.major == 3
 
+    - name: Refresh the APT package index
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_facts.pkg_mgr == "apt"
+
     - name: Install the contract package
       ansible.builtin.package:
         name: tree

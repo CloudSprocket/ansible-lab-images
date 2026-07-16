@@ -39,6 +39,10 @@ fail_with_logs() {
   echo "Contract failed for $container" >&2
   docker inspect "$container" >&2 || true
   docker logs "$container" >&2 || true
+  docker exec "$container" sh -c \
+    'id learner; getent shadow learner | cut -d: -f1,2; ls -l /etc/sudoers.d/90-lab-user; test ! -e /run/nologin' \
+    >&2 || true
+  docker exec "$container" journalctl --boot --no-pager --lines 200 >&2 || true
   exit 1
 }
 
