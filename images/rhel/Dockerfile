@@ -12,7 +12,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV container=docker \
     LANG=C.UTF-8
 
-RUN dnf -y upgrade --refresh \
+RUN install -d -m 0755 /etc/ssh \
+    && touch \
+       /etc/ssh/ssh_host_ecdsa_key \
+       /etc/ssh/ssh_host_ed25519_key \
+       /etc/ssh/ssh_host_rsa_key \
+    && dnf -y upgrade --refresh \
     && dnf -y install \
        bash \
        ca-certificates \
@@ -27,6 +32,7 @@ RUN dnf -y upgrade --refresh \
        sudo \
        systemd \
        tzdata \
+    && rm -f /etc/ssh/ssh_host_* \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 

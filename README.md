@@ -73,7 +73,7 @@ docker compose -f compose.yml -f compose.systemd.yml down
 ```
 
 The overlay enables privileged mode, the host cgroup namespace, a writable
-cgroup mount, an unconfined AppArmor profile and tmpfs mounts for runtime
+cgroup mount, Docker's default AppArmor profile and tmpfs mounts for runtime
 directories. It never mounts the Docker socket or a user home directory.
 
 ## Build and contract commands

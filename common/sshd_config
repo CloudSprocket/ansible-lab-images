@@ -19,7 +19,7 @@ PasswordAuthentication no
 PermitEmptyPasswords no
 KbdInteractiveAuthentication no
 ChallengeResponseAuthentication no
-UsePAM no
+UsePAM yes
 AllowAgentForwarding no
 AllowTcpForwarding no
 GatewayPorts no

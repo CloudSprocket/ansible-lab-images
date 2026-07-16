@@ -53,6 +53,7 @@ ssh_run '! command -v ansible >/dev/null 2>&1'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "passwordauthentication no"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "permitrootlogin no"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "authenticationmethods publickey"'
+ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "usepam yes"'
 # The awk expression is intentionally evaluated on the managed node.
 # shellcheck disable=SC2016
 ssh_run 'sudo getent shadow learner | awk -F: '\''$2 == "*" {found=1} END {exit !found}'\'''

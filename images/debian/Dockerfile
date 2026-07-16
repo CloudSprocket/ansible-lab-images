@@ -14,7 +14,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV container=docker \
     LANG=C.UTF-8
 
-RUN apt-get update \
+RUN install -d -m 0755 /etc/ssh \
+    && touch \
+       /etc/ssh/ssh_host_ecdsa_key \
+       /etc/ssh/ssh_host_ed25519_key \
+       /etc/ssh/ssh_host_rsa_key \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
        bash \
        ca-certificates \
@@ -29,6 +34,7 @@ RUN apt-get update \
        systemd \
        systemd-sysv \
        tzdata \
+    && rm -f /etc/ssh/ssh_host_* \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --shell /bin/bash learner \
