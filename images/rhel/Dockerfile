@@ -39,8 +39,12 @@ RUN install -d -m 0755 /etc/ssh \
 RUN useradd --create-home --shell /bin/bash learner \
     && usermod --append --groups wheel learner \
     && usermod --password '*' learner \
-    && printf '%s\n' 'learner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/90-lab-user \
-    && chmod 0440 /etc/sudoers.d/90-lab-user
+    && printf '%s\n' \
+       'Defaults:learner !pam_acct_mgmt' \
+       'learner ALL=(ALL) NOPASSWD:ALL' \
+       > /etc/sudoers.d/90-lab-user \
+    && chmod 0440 /etc/sudoers.d/90-lab-user \
+    && visudo -cf /etc/sudoers.d/90-lab-user
 
 COPY --chmod=0755 common/entrypoint.sh /usr/local/bin/lab-entrypoint
 COPY --chmod=0600 common/sshd_config /etc/ssh/sshd_config

@@ -18,10 +18,10 @@ versioned release. See [SUPPORT.md](SUPPORT.md) for distribution lifecycles.
 ## Important limitations
 
 These are disposable lab images, not hardened production servers. The
-`learner` account has passwordless sudo by design. Default SSH mode is
-unprivileged, but optional systemd mode requires `privileged: true` and a
-writable cgroup mount. The supplied overlay explicitly reapplies Docker's
-default AppArmor profile. Run it only on a trusted development host.
+`learner` account has passwordless sudo and learner-scoped PAM account checks
+disabled by design. Default SSH mode is unprivileged, but optional systemd mode
+requires `privileged: true`, a writable cgroup mount and unconfined AppArmor.
+Run it only on a trusted development host.
 
 Never expose the SSH ports publicly, mount the Docker socket, reuse lab keys or
 store persistent secrets inside a managed-node container.

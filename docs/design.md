@@ -32,10 +32,10 @@ OpenSSH termination and reaps the process.
 
 Systemd mode sets `LAB_INIT=systemd` and executes `/sbin/init` as PID 1. Docker
 must grant privileged mode, the host cgroup namespace, a writable cgroup mount
-and tmpfs runtime directories. The overlay explicitly reapplies Docker's
-default AppArmor profile so host path-based profiles do not intercept container
-PAM helpers. The test suite asserts these settings instead of hiding them behind
-the image.
+and tmpfs runtime directories. Privileged mode is AppArmor-unconfined, so the
+learner-specific sudo policy skips only PAM account validation and avoids host
+path-based PAM helper profiles. The test suite asserts these settings instead
+of hiding them behind the image.
 
 ## Supply-chain boundary
 

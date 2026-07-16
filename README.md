@@ -28,7 +28,8 @@ Every managed-node image provides the same baseline:
 
 - unprivileged SSH mode by default;
 - an unusable `learner` password hash with key-only authentication;
-- passwordless sudo for disposable lab exercises;
+- passwordless sudo with learner-scoped PAM account checks disabled for
+  disposable lab exercises;
 - public keys supplied at runtime, never baked into an image;
 - SSH host keys generated when a container starts;
 - root login, passwords, forwarding and tunnelling disabled;
@@ -73,7 +74,7 @@ docker compose -f compose.yml -f compose.systemd.yml down
 ```
 
 The overlay enables privileged mode, the host cgroup namespace, a writable
-cgroup mount, Docker's default AppArmor profile and tmpfs mounts for runtime
+cgroup mount, an unconfined AppArmor profile and tmpfs mounts for runtime
 directories. It never mounts the Docker socket or a user home directory.
 
 ## Build and contract commands

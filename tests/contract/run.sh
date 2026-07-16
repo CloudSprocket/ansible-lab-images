@@ -146,7 +146,7 @@ docker run -d \
   --hostname "$systemd_container" \
   --network "$network" \
   --privileged \
-  --security-opt apparmor=docker-default \
+  --security-opt apparmor=unconfined \
   --cgroupns=host \
   --env LAB_INIT=systemd \
   --tmpfs /run:rw,nosuid,nodev,mode=755 \
@@ -158,7 +158,7 @@ docker run -d \
 
 wait_for_health "$systemd_container"
 [[ "$(docker inspect --format '{{.HostConfig.Privileged}}' "$systemd_container")" == "true" ]]
-[[ "$(docker inspect --format '{{.AppArmorProfile}}' "$systemd_container")" == "docker-default" ]]
+[[ "$(docker inspect --format '{{.AppArmorProfile}}' "$systemd_container")" == "unconfined" ]]
 [[ "$(docker exec "$systemd_container" cat /proc/1/comm)" == "systemd" ]]
 
 service_name="sshd.service"

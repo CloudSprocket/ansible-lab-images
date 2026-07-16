@@ -2,7 +2,7 @@
 x-systemd-node: &systemd-node
   privileged: true
   security_opt:
-    - apparmor=docker-default
+    - apparmor=unconfined
   cgroup: host
   environment:
     LAB_INIT: systemd
