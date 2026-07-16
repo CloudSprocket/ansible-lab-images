@@ -55,7 +55,10 @@ jobs:
             tests/controller/Dockerfile
           )
           for dockerfile in "${dockerfiles[@]}"; do
-            docker run --rm -i "$HADOLINT_IMAGE" /bin/hadolint - < "$dockerfile"
+            docker run --rm -i \
+              --mount "type=bind,source=$PWD/.hadolint.yaml,target=/.hadolint.yaml,readonly" \
+              "$HADOLINT_IMAGE" \
+              /bin/hadolint --config /.hadolint.yaml - < "$dockerfile"
           done
 
   runtime:
