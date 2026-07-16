@@ -29,6 +29,8 @@ ssh_options=(
 )
 
 ssh_run() {
+  # The remaining arguments intentionally form the command executed remotely.
+  # shellcheck disable=SC2029
   ssh "${ssh_options[@]}" "learner@${managed_host}" "$@"
 }
 
@@ -42,6 +44,8 @@ for _ in $(seq 1 90); do
 done
 [[ "$ready" == "true" ]] || { echo "SSH did not become ready on $managed_host" >&2; exit 1; }
 
+# Expansion is intentionally deferred to the managed node.
+# shellcheck disable=SC2016
 ssh_run 'test "$(id -un)" = learner'
 ssh_run 'python3 -c "import sys; assert sys.version_info.major == 3"'
 ssh_run 'sudo -n true'
@@ -49,6 +53,8 @@ ssh_run '! command -v ansible >/dev/null 2>&1'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "passwordauthentication no"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "permitrootlogin no"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "authenticationmethods publickey"'
+# The awk expression is intentionally evaluated on the managed node.
+# shellcheck disable=SC2016
 ssh_run 'sudo getent shadow learner | awk -F: '\''$2 ~ /^[!*]/ {found=1} END {exit !found}'\'''
 ssh_run "source /etc/os-release; test \"\$ID\" = '$expected_id'"
 ssh_run "source /etc/os-release; case \"\$VERSION_ID\" in '$expected_major'*) ;; *) exit 1 ;; esac"

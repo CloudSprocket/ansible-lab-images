@@ -55,6 +55,8 @@ fi
 sshd_pid=$!
 terminating=false
 
+# ShellCheck cannot infer calls made indirectly by signal traps.
+# shellcheck disable=SC2317
 terminate_sshd() {
   terminating=true
   kill -TERM "$sshd_pid" 2>/dev/null || true
