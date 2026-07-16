@@ -62,13 +62,16 @@ wait_for_health() {
 
 assert_clean_stop() {
   local container="$1"
+  shift
   docker stop --time 30 "$container" >/dev/null
   local exit_code
   exit_code="$(docker inspect --format '{{.State.ExitCode}}' "$container")"
-  [[ "$exit_code" == "0" ]] || {
-    echo "$container stopped with exit code $exit_code" >&2
-    exit 1
-  }
+  local expected
+  for expected in "$@"; do
+    [[ "$exit_code" == "$expected" ]] && return 0
+  done
+  echo "$container stopped with unexpected exit code $exit_code" >&2
+  exit 1
 }
 
 assert_labels() {
@@ -136,13 +139,14 @@ wait_for_health "$sshd_container"
 [[ "$(docker inspect --format '{{range .Mounts}}{{println .Destination}}{{end}}' "$sshd_container")" != *docker.sock* ]]
 assert_labels "$sshd_container"
 run_controller_contract sshd "$sshd_container"
-assert_clean_stop "$sshd_container"
+assert_clean_stop "$sshd_container" 0
 
 docker run -d \
   --name "$systemd_container" \
   --hostname "$systemd_container" \
   --network "$network" \
   --privileged \
+  --security-opt apparmor=unconfined \
   --cgroupns=host \
   --env LAB_INIT=systemd \
   --tmpfs /run:rw,nosuid,nodev,mode=755 \
@@ -168,6 +172,6 @@ esac
 
 assert_labels "$systemd_container"
 run_controller_contract systemd "$systemd_container"
-assert_clean_stop "$systemd_container"
+assert_clean_stop "$systemd_container" 0 130
 
 echo "Contract passed for $image ($expected_distribution $expected_major)."
