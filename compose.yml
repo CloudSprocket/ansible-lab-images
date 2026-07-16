@@ -1,0 +1,52 @@
+---
+x-node: &node
+  restart: unless-stopped
+  secrets:
+    - authorized_keys
+  networks:
+    - lab
+
+services:
+  ubuntu2404:
+    <<: *node
+    image: docker.io/cloudsprocket/ansible-node:ubuntu-24.04-dev
+    pull_policy: never
+    hostname: ubuntu2404
+    container_name: ansible-node-ubuntu2404
+    ports:
+      - "127.0.0.1:2222:22"
+
+  debian13:
+    <<: *node
+    image: docker.io/cloudsprocket/ansible-node:debian-13-dev
+    pull_policy: never
+    hostname: debian13
+    container_name: ansible-node-debian13
+    ports:
+      - "127.0.0.1:2223:22"
+
+  rocky9:
+    <<: *node
+    image: docker.io/cloudsprocket/ansible-node:rocky-9-dev
+    pull_policy: never
+    hostname: rocky9
+    container_name: ansible-node-rocky9
+    ports:
+      - "127.0.0.1:2224:22"
+
+  rocky10:
+    <<: *node
+    image: docker.io/cloudsprocket/ansible-node:rocky-10-dev
+    pull_policy: never
+    hostname: rocky10
+    container_name: ansible-node-rocky10
+    ports:
+      - "127.0.0.1:2225:22"
+
+secrets:
+  authorized_keys:
+    file: ./.lab/ssh/authorized_keys
+
+networks:
+  lab:
+    name: ansible_lab_images

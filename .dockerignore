@@ -1,0 +1,9 @@
+.git
+.github
+.lab
+.local
+.venv
+test-results
+*.md
+LICENSE
+compose*.yml

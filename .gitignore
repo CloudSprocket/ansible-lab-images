@@ -1,0 +1,10 @@
+.lab/
+.local/
+.venv/
+test-results/
+*.retry
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

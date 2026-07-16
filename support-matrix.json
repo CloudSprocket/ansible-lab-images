@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "tested_ansible_core": "2.21.2",
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "images": [
+    {
+      "target": "ubuntu-2404",
+      "distribution_id": "ubuntu",
+      "distribution_version": "24.04",
+      "supported_until": "2029-05-31",
+      "base_image": "docker.io/library/ubuntu:24.04",
+      "base_digest": "sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90"
+    },
+    {
+      "target": "debian-13",
+      "distribution_id": "debian",
+      "distribution_version": "13",
+      "supported_until": "2030-06-30",
+      "base_image": "docker.io/library/debian:13",
+      "base_digest": "sha256:fac46bff2e02f51425b6e33b0e1169f55dfb053d83511ca28aa50c09fd5ed7a4"
+    },
+    {
+      "target": "rocky-9",
+      "distribution_id": "rocky",
+      "distribution_version": "9",
+      "supported_until": "2032-05-31",
+      "base_image": "docker.io/rockylinux/rockylinux:9",
+      "base_digest": "sha256:8101994123cf3d0a8fee517bee7f39e555c7d92bd2d9eb3303cc988a0eeed00f"
+    },
+    {
+      "target": "rocky-10",
+      "distribution_id": "rocky",
+      "distribution_version": "10",
+      "supported_until": "2035-05-31",
+      "base_image": "docker.io/rockylinux/rockylinux:10",
+      "base_digest": "sha256:827d37bc128288ccf160ee318bb3cb92d591164cb217e92f8bc61e3982ae1834"
+    }
+  ]
+}

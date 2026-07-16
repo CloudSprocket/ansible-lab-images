@@ -1,0 +1,57 @@
+---
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+      timezone: Asia/Dubai
+    labels:
+      - dependencies
+      - github-actions
+
+  - package-ecosystem: docker
+    directory: /images/debian
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:15"
+      timezone: Asia/Dubai
+    labels:
+      - dependencies
+      - container-base
+
+  - package-ecosystem: docker
+    directory: /images/rhel
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:30"
+      timezone: Asia/Dubai
+    labels:
+      - dependencies
+      - container-base
+
+  - package-ecosystem: docker
+    directory: /tests/controller
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:45"
+      timezone: Asia/Dubai
+    labels:
+      - dependencies
+      - test-infrastructure
+
+  - package-ecosystem: pip
+    directory: /tests/controller
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Dubai
+    labels:
+      - dependencies
+      - test-infrastructure

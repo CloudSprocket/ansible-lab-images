@@ -1,0 +1,7 @@
+---
+failure-threshold: warning
+ignored:
+  # Distribution packages intentionally follow the repositories attached to
+  # an immutable base digest. Weekly clean rebuilds detect package changes.
+  - DL3008
+  - DL3041

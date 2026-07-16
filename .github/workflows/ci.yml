@@ -1,0 +1,196 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_call:
+    inputs:
+      pull:
+        description: Pull base references before building
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  static:
+    name: Static validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
+
+      - name: Install static analysis tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep shellcheck python3-venv
+          python3 -m venv .venv
+          .venv/bin/pip install --disable-pip-version-check yamllint==1.38.0
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: Run project static checks
+        run: ./scripts/static-checks.sh
+
+      - name: Lint Dockerfiles
+        env:
+          HADOLINT_IMAGE: >-
+            docker.io/hadolint/hadolint:v2.14.0-alpine@sha256:7aba693c1442eb31c0b015c129697cb3b6cb7da589d85c7562f9deb435a6657c
+        run: |
+          dockerfiles=(
+            images/debian/Dockerfile
+            images/rhel/Dockerfile
+            tests/controller/Dockerfile
+          )
+          for dockerfile in "${dockerfiles[@]}"; do
+            docker run --rm -i "$HADOLINT_IMAGE" /bin/hadolint - < "$dockerfile"
+          done
+
+  runtime:
+    name: ${{ matrix.target }} on ${{ matrix.arch }}
+    needs: static
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: ubuntu-2404
+            contract_target: ubuntu-24.04
+            arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+            image: docker.io/cloudsprocket/ansible-node:ubuntu-24.04-dev
+          - target: debian-13
+            contract_target: debian-13
+            arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+            image: docker.io/cloudsprocket/ansible-node:debian-13-dev
+          - target: rocky-9
+            contract_target: rocky-9
+            arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+            image: docker.io/cloudsprocket/ansible-node:rocky-9-dev
+          - target: rocky-10
+            contract_target: rocky-10
+            arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+            image: docker.io/cloudsprocket/ansible-node:rocky-10-dev
+          - target: ubuntu-2404
+            contract_target: ubuntu-24.04
+            arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            image: docker.io/cloudsprocket/ansible-node:ubuntu-24.04-dev
+          - target: debian-13
+            contract_target: debian-13
+            arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            image: docker.io/cloudsprocket/ansible-node:debian-13-dev
+          - target: rocky-9
+            contract_target: rocky-9
+            arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            image: docker.io/cloudsprocket/ansible-node:rocky-9-dev
+          - target: rocky-10
+            contract_target: rocky-10
+            arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            image: docker.io/cloudsprocket/ansible-node:rocky-10-dev
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
+
+      - name: Build managed node and contract controller
+        env:
+          BUILD_PLATFORM: ${{ matrix.platform }}
+          BUILD_TARGET: ${{ matrix.target }}
+          PULL_BASES: ${{ inputs.pull || false }}
+          REVISION: ${{ github.sha }}
+          SHORT_SHA: ${{ github.sha }}
+          VERSION: dev
+        run: |
+          export CREATED
+          CREATED="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          pull_args=()
+          if [[ "$PULL_BASES" == "true" ]]; then
+            pull_args+=(--pull)
+          fi
+          docker buildx bake -f docker-bake.hcl "$BUILD_TARGET" test-controller --load \
+            "${pull_args[@]}" \
+            --set "${BUILD_TARGET}.platform=${BUILD_PLATFORM}" \
+            --set "test-controller.platform=${BUILD_PLATFORM}"
+
+      - name: Run SSH, Ansible, idempotency and systemd contracts
+        run: ./scripts/test-image.sh "${{ matrix.contract_target }}"
+
+      - name: Scan candidate for fixable high-severity vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          image-ref: ${{ matrix.image }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+          vuln-type: os,library
+
+  publish-candidate:
+    name: Publish commit-scoped candidates
+    needs: [static, runtime]
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      vars.PUBLISH_CANDIDATES == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    environment: dockerhub
+    steps:
+      - name: Check out source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8  # v4.2.0
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish candidate manifests
+        env:
+          REVISION: ${{ github.sha }}
+          SHORT_SHA: ${{ github.sha }}
+          VERSION: dev
+        run: |
+          export CREATED
+          CREATED="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          SHORT_SHA="${SHORT_SHA:0:12}"
+          export SHORT_SHA
+          docker buildx bake -f docker-bake.hcl candidate --pull --push \
+            --provenance=mode=max --sbom=true

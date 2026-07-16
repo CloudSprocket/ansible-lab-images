@@ -1,0 +1,43 @@
+---
+- name: Verify the managed-node contract
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Assert distribution facts
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.distribution == expected_distribution
+          - ansible_facts.distribution_major_version == expected_major
+          - ansible_facts.python.version.major == 3
+
+    - name: Install the contract package
+      ansible.builtin.package:
+        name: tree
+        state: present
+
+    - name: Create the contract user
+      ansible.builtin.user:
+        name: contract-user
+        state: present
+        create_home: true
+
+    - name: Write the contract marker
+      ansible.builtin.copy:
+        dest: /etc/ansible-managed-node
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          managed by the external contract suite
+
+    - name: Prove passwordless sudo works
+      ansible.builtin.command: id -u
+      register: sudo_identity
+      changed_when: false
+
+    - name: Assert sudo ran as root
+      ansible.builtin.assert:
+        that:
+          - sudo_identity.stdout == "0"

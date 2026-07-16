@@ -1,0 +1,74 @@
+---
+- name: Verify the systemd service contract
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Assert systemd is the service manager
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.service_mgr == "systemd"
+
+    - name: Install the contract service program
+      ansible.builtin.copy:
+        dest: /usr/local/sbin/lab-contract-service
+        owner: root
+        group: root
+        mode: "0755"
+        content: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+          trap 'exit 0' TERM INT
+          while true; do
+            sleep 60 &
+            wait $!
+          done
+      notify: Reload and restart the contract service
+
+    - name: Install the contract systemd unit
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/lab-contract.service
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Managed-node contract service
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/sbin/lab-contract-service
+          Restart=on-failure
+
+          [Install]
+          WantedBy=multi-user.target
+      notify: Reload and restart the contract service
+
+    - name: Apply service file changes before verification
+      ansible.builtin.meta: flush_handlers
+
+    - name: Ensure the contract service is enabled and running
+      ansible.builtin.systemd_service:
+        name: lab-contract.service
+        enabled: true
+        state: started
+
+    - name: Query contract service state
+      ansible.builtin.command: systemctl is-active lab-contract.service
+      register: contract_service_state
+      changed_when: false
+
+    - name: Assert contract service is active
+      ansible.builtin.assert:
+        that:
+          - contract_service_state.stdout == "active"
+
+  handlers:
+    - name: Reload and restart the contract service
+      ansible.builtin.systemd_service:
+        name: lab-contract.service
+        daemon_reload: true
+        enabled: true
+        state: restarted

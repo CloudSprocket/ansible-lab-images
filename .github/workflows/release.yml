@@ -1,0 +1,114 @@
+---
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Semantic version without the v prefix
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality:
+    uses: ./.github/workflows/ci.yml
+    with:
+      pull: true
+
+  release:
+    name: Publish multi-architecture release
+    needs: quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    environment: dockerhub
+    permissions:
+      contents: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Resolve and validate release version
+        id: version
+        env:
+          MANUAL_VERSION: ${{ inputs.version }}
+        run: |
+          version="$MANUAL_VERSION"
+          if [[ -z "$version" ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          fi
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "Invalid release version: $version" >&2
+            exit 1
+          }
+          [[ "$(< VERSION)" == "$version" ]] || {
+            echo "VERSION does not match release version $version" >&2
+            exit 1
+          }
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8  # v4.2.0
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and publish release manifests
+        env:
+          REVISION: ${{ github.sha }}
+          SHORT_SHA: ${{ github.sha }}
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          export CREATED
+          CREATED="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          SHORT_SHA="${SHORT_SHA:0:12}"
+          export SHORT_SHA
+          docker buildx bake -f docker-bake.hcl release --pull --push \
+            --provenance=mode=max --sbom=true
+
+      - name: Verify published tags and platforms
+        run: ./scripts/verify-manifests.sh "${{ steps.version.outputs.value }}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          notes="$RUNNER_TEMP/release-notes.md"
+          {
+            echo "## Managed-node images"
+            echo
+            for distribution in ubuntu-24.04 debian-13 rocky-9 rocky-10; do
+              echo "- \`docker.io/cloudsprocket/ansible-node:${distribution}-${RELEASE_VERSION}\`"
+            done
+            echo
+            echo "Platforms: \`linux/amd64\`, \`linux/arm64\`"
+            echo
+            echo "Every image was tested in SSH and systemd modes with ansible-core 2.21.2."
+          } > "$notes"
+          verify_args=()
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            verify_args+=(--verify-tag)
+          fi
+          gh release create "v${RELEASE_VERSION}" \
+            --target "$GITHUB_SHA" \
+            --title "v${RELEASE_VERSION}" \
+            --notes-file "$notes" \
+            "${verify_args[@]}"

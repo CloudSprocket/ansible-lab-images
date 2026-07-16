@@ -1,0 +1,25 @@
+---
+x-systemd-node: &systemd-node
+  privileged: true
+  cgroup: host
+  environment:
+    LAB_INIT: systemd
+  tmpfs:
+    - /run
+    - /run/lock
+    - /tmp
+  volumes:
+    - type: bind
+      source: /sys/fs/cgroup
+      target: /sys/fs/cgroup
+      read_only: false
+
+services:
+  ubuntu2404:
+    <<: *systemd-node
+  debian13:
+    <<: *systemd-node
+  rocky9:
+    <<: *systemd-node
+  rocky10:
+    <<: *systemd-node
