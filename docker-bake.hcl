@@ -89,6 +89,8 @@ target "ubuntu-2404" {
     BASE_TARGET = "ubuntu-24.04"
   }
   labels = {
+    "org.opencontainers.image.title" = "CloudSprocket Ansible managed node: Ubuntu 24.04"
+    "org.opencontainers.image.description" = "Disposable Ubuntu 24.04 managed node for Ansible labs and testing"
     "org.opencontainers.image.base.digest" = UBUNTU_BASE_DIGEST
     "org.opencontainers.image.base.name" = "docker.io/library/ubuntu:24.04"
     "org.cloudsprocket.image.distribution" = "ubuntu"
@@ -105,6 +107,8 @@ target "debian-13" {
     BASE_TARGET = "debian-13"
   }
   labels = {
+    "org.opencontainers.image.title" = "CloudSprocket Ansible managed node: Debian 13"
+    "org.opencontainers.image.description" = "Disposable Debian 13 managed node for Ansible labs and testing"
     "org.opencontainers.image.base.digest" = DEBIAN_BASE_DIGEST
     "org.opencontainers.image.base.name" = "docker.io/library/debian:13"
     "org.cloudsprocket.image.distribution" = "debian"
@@ -121,6 +125,8 @@ target "rocky-9" {
     BASE_TARGET = "rocky-9"
   }
   labels = {
+    "org.opencontainers.image.title" = "CloudSprocket Ansible managed node: Rocky Linux 9"
+    "org.opencontainers.image.description" = "Disposable Rocky Linux 9 managed node for Ansible labs and testing"
     "org.opencontainers.image.base.digest" = ROCKY9_BASE_DIGEST
     "org.opencontainers.image.base.name" = "docker.io/rockylinux/rockylinux:9"
     "org.cloudsprocket.image.distribution" = "rocky"
@@ -137,6 +143,8 @@ target "rocky-10" {
     BASE_TARGET = "rocky-10"
   }
   labels = {
+    "org.opencontainers.image.title" = "CloudSprocket Ansible managed node: Rocky Linux 10"
+    "org.opencontainers.image.description" = "Disposable Rocky Linux 10 managed node for Ansible labs and testing"
     "org.opencontainers.image.base.digest" = ROCKY10_BASE_DIGEST
     "org.opencontainers.image.base.name" = "docker.io/rockylinux/rockylinux:10"
     "org.cloudsprocket.image.distribution" = "rocky"

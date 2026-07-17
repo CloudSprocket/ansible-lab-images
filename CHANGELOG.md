@@ -4,6 +4,14 @@ All notable changes are documented here.
 
 ## Unreleased
 
+### Changed
+
+- Tracked the Docker Hub metadata script in `scripts/` and derived its tag
+  references from `VERSION`.
+- Documented the release-pin update and the Docker Hub description refresh in
+  the release process.
+- Made the OCI title and description labels distribution-specific.
+
 ## 0.2.0 - 2026-07-17
 
 ### Changed
