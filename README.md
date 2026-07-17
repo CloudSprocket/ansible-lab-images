@@ -12,15 +12,16 @@ images.
 
 ## Supported images
 
-| Distribution | Development tag | Release channel | Platforms |
+| Distribution | Docker Hub repository | Stable tag | Platforms |
 | --- | --- | --- | --- |
-| Ubuntu 24.04 LTS | `ubuntu-24.04-dev` | `ubuntu-24.04` | amd64, arm64 |
-| Debian 13 | `debian-13-dev` | `debian-13` | amd64, arm64 |
-| Rocky Linux 9 | `rocky-9-dev` | `rocky-9` | amd64, arm64 |
-| Rocky Linux 10 | `rocky-10-dev` | `rocky-10` | amd64, arm64 |
+| Ubuntu 24.04 LTS | [`cloudsprocket/ansible-node-ubuntu-2404`](https://hub.docker.com/r/cloudsprocket/ansible-node-ubuntu-2404) | `latest` | amd64, arm64 |
+| Debian 13 | [`cloudsprocket/ansible-node-debian-13`](https://hub.docker.com/r/cloudsprocket/ansible-node-debian-13) | `latest` | amd64, arm64 |
+| Rocky Linux 9 | [`cloudsprocket/ansible-node-rocky-9`](https://hub.docker.com/r/cloudsprocket/ansible-node-rocky-9) | `latest` | amd64, arm64 |
+| Rocky Linux 10 | [`cloudsprocket/ansible-node-rocky-10`](https://hub.docker.com/r/cloudsprocket/ansible-node-rocky-10) | `latest` | amd64, arm64 |
 
-There is deliberately no generic `latest` tag. Select a distribution explicitly.
-See [SUPPORT.md](SUPPORT.md) for lifecycle dates.
+Each distribution has its own repository. Use a semantic-version tag for a
+reproducible lab or `latest` for the current verified release. See
+[SUPPORT.md](SUPPORT.md) for lifecycle dates.
 
 ## Security contract
 
@@ -37,7 +38,31 @@ Every managed-node image provides the same baseline:
 - an explicit privileged systemd mode for service-management tests;
 - digest-pinned upstream bases and OCI source, revision and support labels.
 
-## Local quick start
+## Published quick start
+
+Requirements: Docker Engine or Docker Desktop, Compose and OpenSSH.
+
+Linux, macOS or WSL:
+
+```bash
+./scripts/generate-lab-key.sh
+docker compose -f compose.yml -f compose.release.yml up -d
+ssh -i .lab/ssh/id_ed25519 -p 2222 learner@127.0.0.1
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\Generate-LabKey.ps1
+docker compose -f compose.yml -f compose.release.yml up -d
+ssh -i .lab\ssh\id_ed25519 -p 2222 learner@127.0.0.1
+```
+
+The release overlay pins every distribution to `0.2.0`. Ports 2222 through
+2225 map to Ubuntu, Debian, Rocky Linux 9 and Rocky Linux 10 respectively.
+Stop the estate with the same Compose file arguments followed by `down`.
+
+## Build from source
 
 Requirements: Docker Engine or Docker Desktop, Buildx, Compose and OpenSSH.
 
@@ -59,8 +84,8 @@ docker compose up -d
 ssh -i .lab\ssh\id_ed25519 -p 2222 learner@127.0.0.1
 ```
 
-Ports 2222 through 2225 map to Ubuntu, Debian, Rocky Linux 9 and Rocky Linux
-10 respectively. Stop the estate with `docker compose down`.
+Local builds use an unpublished `dev` tag in each distribution repository.
+Stop the estate with `docker compose down`.
 
 ## Optional systemd mode
 
@@ -68,9 +93,9 @@ Real systemd requires privileges that weaken container isolation. Use it only
 on a trusted development machine with disposable lab containers.
 
 ```bash
-docker compose -f compose.yml -f compose.systemd.yml up -d
+docker compose -f compose.yml -f compose.release.yml -f compose.systemd.yml up -d
 docker exec ansible-node-ubuntu2404 systemctl is-system-running
-docker compose -f compose.yml -f compose.systemd.yml down
+docker compose -f compose.yml -f compose.release.yml -f compose.systemd.yml down
 ```
 
 The overlay enables privileged mode, the host cgroup namespace, a writable
@@ -106,17 +131,16 @@ GitHub Actions runs this contract natively on amd64 and arm64.
 
 ## Published tags
 
-Release `0.1.0` produces, for example:
+Release `0.2.0` produces two tags in each distribution repository:
 
 ```text
-docker.io/cloudsprocket/ansible-node:ubuntu-24.04
-docker.io/cloudsprocket/ansible-node:ubuntu-24.04-0.1.0
-docker.io/cloudsprocket/ansible-node:ubuntu-24.04-sha-<commit>
+docker.io/cloudsprocket/ansible-node-ubuntu-2404:latest
+docker.io/cloudsprocket/ansible-node-ubuntu-2404:0.2.0
 ```
 
-Distribution channels move after a verified release. Version and commit tags
-are immutable. Published builds include BuildKit SBOM and provenance
-attestations. See [RELEASE.md](RELEASE.md) for the release procedure.
+The `latest` channel moves only after verification. Semantic-version tags are
+immutable. Published builds include BuildKit SBOM and provenance attestations.
+See [RELEASE.md](RELEASE.md) for the release procedure.
 
 ## Project documents
 

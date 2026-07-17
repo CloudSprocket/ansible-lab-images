@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "tested_ansible_core": "2.21.2",
   "architectures": [
     "amd64",
@@ -8,6 +8,7 @@
   "images": [
     {
       "target": "ubuntu-2404",
+      "repository": "docker.io/cloudsprocket/ansible-node-ubuntu-2404",
       "distribution_id": "ubuntu",
       "distribution_version": "24.04",
       "supported_until": "2029-05-31",
@@ -16,6 +17,7 @@
     },
     {
       "target": "debian-13",
+      "repository": "docker.io/cloudsprocket/ansible-node-debian-13",
       "distribution_id": "debian",
       "distribution_version": "13",
       "supported_until": "2030-06-30",
@@ -24,6 +26,7 @@
     },
     {
       "target": "rocky-9",
+      "repository": "docker.io/cloudsprocket/ansible-node-rocky-9",
       "distribution_id": "rocky",
       "distribution_version": "9",
       "supported_until": "2032-05-31",
@@ -32,6 +35,7 @@
     },
     {
       "target": "rocky-10",
+      "repository": "docker.io/cloudsprocket/ansible-node-rocky-10",
       "distribution_id": "rocky",
       "distribution_version": "10",
       "supported_until": "2035-05-31",

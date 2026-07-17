@@ -1,5 +1,17 @@
-variable "IMAGE" {
-  default = "docker.io/cloudsprocket/ansible-node"
+variable "UBUNTU_2404_IMAGE" {
+  default = "docker.io/cloudsprocket/ansible-node-ubuntu-2404"
+}
+
+variable "DEBIAN_13_IMAGE" {
+  default = "docker.io/cloudsprocket/ansible-node-debian-13"
+}
+
+variable "ROCKY_9_IMAGE" {
+  default = "docker.io/cloudsprocket/ansible-node-rocky-9"
+}
+
+variable "ROCKY_10_IMAGE" {
+  default = "docker.io/cloudsprocket/ansible-node-rocky-10"
 }
 
 variable "VERSION" {
@@ -7,10 +19,6 @@ variable "VERSION" {
 }
 
 variable "REVISION" {
-  default = "local"
-}
-
-variable "SHORT_SHA" {
   default = "local"
 }
 
@@ -50,15 +58,6 @@ group "test" {
   targets = ["ubuntu-2404", "debian-13", "rocky-9", "rocky-10", "test-controller"]
 }
 
-group "candidate" {
-  targets = [
-    "candidate-ubuntu-2404",
-    "candidate-debian-13",
-    "candidate-rocky-9",
-    "candidate-rocky-10",
-  ]
-}
-
 group "release" {
   targets = [
     "release-ubuntu-2404",
@@ -96,7 +95,7 @@ target "ubuntu-2404" {
     "org.cloudsprocket.image.distribution-version" = "24.04"
     "org.cloudsprocket.image.supported-until" = "2029-05-31"
   }
-  tags = ["${IMAGE}:ubuntu-24.04-${VERSION}"]
+  tags = ["${UBUNTU_2404_IMAGE}:dev"]
 }
 
 target "debian-13" {
@@ -112,7 +111,7 @@ target "debian-13" {
     "org.cloudsprocket.image.distribution-version" = "13"
     "org.cloudsprocket.image.supported-until" = "2030-06-30"
   }
-  tags = ["${IMAGE}:debian-13-${VERSION}"]
+  tags = ["${DEBIAN_13_IMAGE}:dev"]
 }
 
 target "rocky-9" {
@@ -128,7 +127,7 @@ target "rocky-9" {
     "org.cloudsprocket.image.distribution-version" = "9"
     "org.cloudsprocket.image.supported-until" = "2032-05-31"
   }
-  tags = ["${IMAGE}:rocky-9-${VERSION}"]
+  tags = ["${ROCKY_9_IMAGE}:dev"]
 }
 
 target "rocky-10" {
@@ -144,7 +143,7 @@ target "rocky-10" {
     "org.cloudsprocket.image.distribution-version" = "10"
     "org.cloudsprocket.image.supported-until" = "2035-05-31"
   }
-  tags = ["${IMAGE}:rocky-10-${VERSION}"]
+  tags = ["${ROCKY_10_IMAGE}:dev"]
 }
 
 target "test-controller" {
@@ -154,58 +153,34 @@ target "test-controller" {
   tags = ["cloudsprocket/ansible-contract:${VERSION}"]
 }
 
-target "candidate-ubuntu-2404" {
-  inherits = ["ubuntu-2404"]
-  tags = ["${IMAGE}:ubuntu-24.04-sha-${SHORT_SHA}"]
-}
-
-target "candidate-debian-13" {
-  inherits = ["debian-13"]
-  tags = ["${IMAGE}:debian-13-sha-${SHORT_SHA}"]
-}
-
-target "candidate-rocky-9" {
-  inherits = ["rocky-9"]
-  tags = ["${IMAGE}:rocky-9-sha-${SHORT_SHA}"]
-}
-
-target "candidate-rocky-10" {
-  inherits = ["rocky-10"]
-  tags = ["${IMAGE}:rocky-10-sha-${SHORT_SHA}"]
-}
-
 target "release-ubuntu-2404" {
   inherits = ["ubuntu-2404"]
   tags = [
-    "${IMAGE}:ubuntu-24.04",
-    "${IMAGE}:ubuntu-24.04-${VERSION}",
-    "${IMAGE}:ubuntu-24.04-sha-${SHORT_SHA}",
+    "${UBUNTU_2404_IMAGE}:latest",
+    "${UBUNTU_2404_IMAGE}:${VERSION}",
   ]
 }
 
 target "release-debian-13" {
   inherits = ["debian-13"]
   tags = [
-    "${IMAGE}:debian-13",
-    "${IMAGE}:debian-13-${VERSION}",
-    "${IMAGE}:debian-13-sha-${SHORT_SHA}",
+    "${DEBIAN_13_IMAGE}:latest",
+    "${DEBIAN_13_IMAGE}:${VERSION}",
   ]
 }
 
 target "release-rocky-9" {
   inherits = ["rocky-9"]
   tags = [
-    "${IMAGE}:rocky-9",
-    "${IMAGE}:rocky-9-${VERSION}",
-    "${IMAGE}:rocky-9-sha-${SHORT_SHA}",
+    "${ROCKY_9_IMAGE}:latest",
+    "${ROCKY_9_IMAGE}:${VERSION}",
   ]
 }
 
 target "release-rocky-10" {
   inherits = ["rocky-10"]
   tags = [
-    "${IMAGE}:rocky-10",
-    "${IMAGE}:rocky-10-${VERSION}",
-    "${IMAGE}:rocky-10-sha-${SHORT_SHA}",
+    "${ROCKY_10_IMAGE}:latest",
+    "${ROCKY_10_IMAGE}:${VERSION}",
   ]
 }
