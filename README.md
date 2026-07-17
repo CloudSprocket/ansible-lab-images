@@ -58,7 +58,8 @@ docker compose -f compose.yml -f compose.release.yml up -d
 ssh -i .lab\ssh\id_ed25519 -p 2222 learner@127.0.0.1
 ```
 
-The release overlay pins every distribution to `0.2.0`. Ports 2222 through
+The release overlay pins every distribution to the release version recorded
+in [VERSION](VERSION). Ports 2222 through
 2225 map to Ubuntu, Debian, Rocky Linux 9 and Rocky Linux 10 respectively.
 Stop the estate with the same Compose file arguments followed by `down`.
 

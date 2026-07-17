@@ -18,11 +18,13 @@ The following public Docker Hub repositories must exist before a release:
 ## Release requirements
 
 1. Update `VERSION` to the intended `major.minor.patch` value.
-2. Confirm the support matrix and base digests are current.
-3. Require green native amd64 and arm64 contracts for the exact commit.
-4. Review vulnerability results and resolve every fixable high or critical
+2. Update the pinned image tags in `compose.release.yml` to the same value.
+   The static checks fail when the pins and `VERSION` disagree.
+3. Confirm the support matrix and base digests are current.
+4. Require green native amd64 and arm64 contracts for the exact commit.
+5. Review vulnerability results and resolve every fixable high or critical
    finding. Any exception must be time-limited and documented in release notes.
-5. Trigger the Release workflow with a signed `v<version>` tag or its approved
+6. Trigger the Release workflow with a signed `v<version>` tag or its approved
    manual input.
 
 ## What the workflow publishes
@@ -37,6 +39,20 @@ For each distribution repository, the workflow creates:
 The workflow then verifies platform manifests, confirms `latest` and the
 immutable version share a digest in every repository, and creates a GitHub
 release.
+
+## After the workflow succeeds
+
+Refresh the Docker Hub short descriptions and overviews so they reference the
+new immutable tag:
+
+```powershell
+.\scripts\update-dockerhub-metadata.ps1 -Apply
+```
+
+The script reads `VERSION`, authenticates with the Docker Hub credentials held
+by Docker Desktop and updates the four distribution repositories plus the
+deprecated combined repository. Run it without `-Apply` to preview the current
+state first.
 
 ## Rollback
 
