@@ -75,49 +75,49 @@ jobs:
             arch: amd64
             platform: linux/amd64
             runner: ubuntu-24.04
-            image: docker.io/cloudsprocket/ansible-node:ubuntu-24.04-dev
+            image: docker.io/cloudsprocket/ansible-node-ubuntu-2404:dev
           - target: debian-13
             contract_target: debian-13
             arch: amd64
             platform: linux/amd64
             runner: ubuntu-24.04
-            image: docker.io/cloudsprocket/ansible-node:debian-13-dev
+            image: docker.io/cloudsprocket/ansible-node-debian-13:dev
           - target: rocky-9
             contract_target: rocky-9
             arch: amd64
             platform: linux/amd64
             runner: ubuntu-24.04
-            image: docker.io/cloudsprocket/ansible-node:rocky-9-dev
+            image: docker.io/cloudsprocket/ansible-node-rocky-9:dev
           - target: rocky-10
             contract_target: rocky-10
             arch: amd64
             platform: linux/amd64
             runner: ubuntu-24.04
-            image: docker.io/cloudsprocket/ansible-node:rocky-10-dev
+            image: docker.io/cloudsprocket/ansible-node-rocky-10:dev
           - target: ubuntu-2404
             contract_target: ubuntu-24.04
             arch: arm64
             platform: linux/arm64
             runner: ubuntu-24.04-arm
-            image: docker.io/cloudsprocket/ansible-node:ubuntu-24.04-dev
+            image: docker.io/cloudsprocket/ansible-node-ubuntu-2404:dev
           - target: debian-13
             contract_target: debian-13
             arch: arm64
             platform: linux/arm64
             runner: ubuntu-24.04-arm
-            image: docker.io/cloudsprocket/ansible-node:debian-13-dev
+            image: docker.io/cloudsprocket/ansible-node-debian-13:dev
           - target: rocky-9
             contract_target: rocky-9
             arch: arm64
             platform: linux/arm64
             runner: ubuntu-24.04-arm
-            image: docker.io/cloudsprocket/ansible-node:rocky-9-dev
+            image: docker.io/cloudsprocket/ansible-node-rocky-9:dev
           - target: rocky-10
             contract_target: rocky-10
             arch: arm64
             platform: linux/arm64
             runner: ubuntu-24.04-arm
-            image: docker.io/cloudsprocket/ansible-node:rocky-10-dev
+            image: docker.io/cloudsprocket/ansible-node-rocky-10:dev
 
     steps:
       - name: Check out source
@@ -132,7 +132,6 @@ jobs:
           BUILD_TARGET: ${{ matrix.target }}
           PULL_BASES: ${{ inputs.pull || false }}
           REVISION: ${{ github.sha }}
-          SHORT_SHA: ${{ github.sha }}
           VERSION: dev
         run: |
           export CREATED
@@ -158,42 +157,3 @@ jobs:
           ignore-unfixed: true
           severity: CRITICAL,HIGH
           vuln-type: os,library
-
-  publish-candidate:
-    name: Publish commit-scoped candidates
-    needs: [static, runtime]
-    if: >-
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main' &&
-      vars.PUBLISH_CANDIDATES == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 90
-    environment: dockerhub
-    steps:
-      - name: Check out source
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8  # v4.2.0
-
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish candidate manifests
-        env:
-          REVISION: ${{ github.sha }}
-          SHORT_SHA: ${{ github.sha }}
-          VERSION: dev
-        run: |
-          export CREATED
-          CREATED="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          SHORT_SHA="${SHORT_SHA:0:12}"
-          export SHORT_SHA
-          docker buildx bake -f docker-bake.hcl candidate --pull --push \
-            --provenance=mode=max --sbom=true

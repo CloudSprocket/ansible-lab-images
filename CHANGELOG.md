@@ -4,6 +4,17 @@ All notable changes are documented here.
 
 ## Unreleased
 
+## 0.2.0 - 2026-07-17
+
+### Changed
+
+- Split each supported distribution into its own Docker Hub repository.
+- Reduced published tags to `latest` and an immutable semantic version.
+- Removed commit-scoped candidate publishing to keep public repositories clean.
+- Added a pinned Compose overlay for running published images without a local build.
+
+## 0.1.0 - 2026-07-17
+
 ### Added
 
 - Ubuntu 24.04, Debian 13, Rocky Linux 9 and Rocky Linux 10 managed nodes.

@@ -9,7 +9,7 @@ x-node: &node
 services:
   ubuntu2404:
     <<: *node
-    image: docker.io/cloudsprocket/ansible-node:ubuntu-24.04-dev
+    image: docker.io/cloudsprocket/ansible-node-ubuntu-2404:dev
     pull_policy: never
     hostname: ubuntu2404
     container_name: ansible-node-ubuntu2404
@@ -18,7 +18,7 @@ services:
 
   debian13:
     <<: *node
-    image: docker.io/cloudsprocket/ansible-node:debian-13-dev
+    image: docker.io/cloudsprocket/ansible-node-debian-13:dev
     pull_policy: never
     hostname: debian13
     container_name: ansible-node-debian13
@@ -27,7 +27,7 @@ services:
 
   rocky9:
     <<: *node
-    image: docker.io/cloudsprocket/ansible-node:rocky-9-dev
+    image: docker.io/cloudsprocket/ansible-node-rocky-9:dev
     pull_policy: never
     hostname: rocky9
     container_name: ansible-node-rocky9
@@ -36,7 +36,7 @@ services:
 
   rocky10:
     <<: *node
-    image: docker.io/cloudsprocket/ansible-node:rocky-10-dev
+    image: docker.io/cloudsprocket/ansible-node-rocky-10:dev
     pull_policy: never
     hostname: rocky10
     container_name: ansible-node-rocky10

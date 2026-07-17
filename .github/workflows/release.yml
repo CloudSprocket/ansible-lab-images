@@ -73,13 +73,10 @@ jobs:
       - name: Build and publish release manifests
         env:
           REVISION: ${{ github.sha }}
-          SHORT_SHA: ${{ github.sha }}
           VERSION: ${{ steps.version.outputs.value }}
         run: |
           export CREATED
           CREATED="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          SHORT_SHA="${SHORT_SHA:0:12}"
-          export SHORT_SHA
           docker buildx bake -f docker-bake.hcl release --pull --push \
             --provenance=mode=max --sbom=true
 
@@ -95,11 +92,18 @@ jobs:
           {
             echo "## Managed-node images"
             echo
-            for distribution in ubuntu-24.04 debian-13 rocky-9 rocky-10; do
-              echo "- \`docker.io/cloudsprocket/ansible-node:${distribution}-${RELEASE_VERSION}\`"
+            repositories=(
+              docker.io/cloudsprocket/ansible-node-ubuntu-2404
+              docker.io/cloudsprocket/ansible-node-debian-13
+              docker.io/cloudsprocket/ansible-node-rocky-9
+              docker.io/cloudsprocket/ansible-node-rocky-10
+            )
+            for repository in "${repositories[@]}"; do
+              echo "- \`${repository}:${RELEASE_VERSION}\`"
             done
             echo
             echo "Platforms: \`linux/amd64\`, \`linux/arm64\`"
+            echo "Stable channel: \`latest\` in each distribution repository"
             echo
             echo "Every image was tested in SSH and systemd modes with ansible-core 2.21.2."
           } > "$notes"

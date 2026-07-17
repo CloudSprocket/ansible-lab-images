@@ -1,0 +1,17 @@
+---
+services:
+  ubuntu2404:
+    image: docker.io/cloudsprocket/ansible-node-ubuntu-2404:0.2.0
+    pull_policy: missing
+
+  debian13:
+    image: docker.io/cloudsprocket/ansible-node-debian-13:0.2.0
+    pull_policy: missing
+
+  rocky9:
+    image: docker.io/cloudsprocket/ansible-node-rocky-9:0.2.0
+    pull_policy: missing
+
+  rocky10:
+    image: docker.io/cloudsprocket/ansible-node-rocky-10:0.2.0
+    pull_policy: missing

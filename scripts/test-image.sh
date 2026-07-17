@@ -4,25 +4,25 @@ set -Eeuo pipefail
 target="${1:-}"
 case "$target" in
   ubuntu-24.04|ubuntu-2404)
-    image="docker.io/cloudsprocket/ansible-node:ubuntu-24.04-dev"
+    image="docker.io/cloudsprocket/ansible-node-ubuntu-2404:dev"
     expected_id="ubuntu"
     expected_major="24"
     expected_distribution="Ubuntu"
     ;;
   debian-13)
-    image="docker.io/cloudsprocket/ansible-node:debian-13-dev"
+    image="docker.io/cloudsprocket/ansible-node-debian-13:dev"
     expected_id="debian"
     expected_major="13"
     expected_distribution="Debian"
     ;;
   rocky-9)
-    image="docker.io/cloudsprocket/ansible-node:rocky-9-dev"
+    image="docker.io/cloudsprocket/ansible-node-rocky-9:dev"
     expected_id="rocky"
     expected_major="9"
     expected_distribution="Rocky"
     ;;
   rocky-10)
-    image="docker.io/cloudsprocket/ansible-node:rocky-10-dev"
+    image="docker.io/cloudsprocket/ansible-node-rocky-10:dev"
     expected_id="rocky"
     expected_major="10"
     expected_distribution="Rocky"

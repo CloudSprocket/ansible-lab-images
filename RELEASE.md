@@ -8,8 +8,12 @@ approval. Add these environment secrets:
 - `DOCKERHUB_USERNAME`
 - `DOCKERHUB_TOKEN`, using a scoped access token rather than an account password
 
-Set the repository variable `PUBLISH_CANDIDATES=true` only when main-branch
-commit tags should be published automatically.
+The following public Docker Hub repositories must exist before a release:
+
+- `cloudsprocket/ansible-node-ubuntu-2404`
+- `cloudsprocket/ansible-node-debian-13`
+- `cloudsprocket/ansible-node-rocky-9`
+- `cloudsprocket/ansible-node-rocky-10`
 
 ## Release requirements
 
@@ -23,20 +27,20 @@ commit tags should be published automatically.
 
 ## What the workflow publishes
 
-For each distribution, the workflow creates:
+For each distribution repository, the workflow creates:
 
-- a moving distribution channel;
-- an immutable distribution and semantic-version tag;
-- an immutable distribution and commit tag;
+- a moving `latest` tag;
+- an immutable semantic-version tag;
 - amd64 and arm64 manifests;
 - BuildKit SBOM and maximum provenance attestations.
 
-The workflow then verifies platform manifests, confirms the moving and
-immutable tags share a digest, checks that no generic `latest` tag exists and
-creates a GitHub release.
+The workflow then verifies platform manifests, confirms `latest` and the
+immutable version share a digest in every repository, and creates a GitHub
+release.
 
 ## Rollback
 
-Moving tags can be restored to a previously verified immutable manifest. Never
-overwrite or delete a versioned release tag. Record the reason and restored
-digest in a GitHub release note and security advisory when applicable.
+An affected repository's `latest` tag can be restored to a previously verified
+immutable manifest. Never overwrite or delete a versioned release tag. Record
+the reason and restored digest in a GitHub release note and security advisory
+when applicable.

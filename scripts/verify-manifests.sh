@@ -7,9 +7,16 @@ version="${1:-}"
   exit 2
 }
 
-image="${IMAGE:-docker.io/cloudsprocket/ansible-node}"
+image_namespace="${IMAGE_NAMESPACE:-docker.io/cloudsprocket}"
 max_attempts="${MANIFEST_VERIFY_ATTEMPTS:-6}"
 retry_delay_seconds="${MANIFEST_VERIFY_RETRY_DELAY_SECONDS:-5}"
+
+declare -A repository_names=(
+  [ubuntu-24.04]="ansible-node-ubuntu-2404"
+  [debian-13]="ansible-node-debian-13"
+  [rocky-9]="ansible-node-rocky-9"
+  [rocky-10]="ansible-node-rocky-10"
+)
 
 [[ "$max_attempts" =~ ^[1-9][0-9]*$ ]] || {
   echo "MANIFEST_VERIFY_ATTEMPTS must be a positive integer." >&2
@@ -44,38 +51,29 @@ inspect_manifest() {
 }
 
 for distribution in ubuntu-24.04 debian-13 rocky-9 rocky-10; do
-  reference="${image}:${distribution}-${version}"
-  inspect_output="$(inspect_manifest "$reference")"
+  image="${image_namespace}/${repository_names[$distribution]}"
+  release_reference="${image}:${version}"
+  inspect_output="$(inspect_manifest "$release_reference")"
   grep -q 'Platform:.*linux/amd64' <<<"$inspect_output" || {
-    echo "Missing linux/amd64 manifest for $reference" >&2
+    echo "Missing linux/amd64 manifest for $release_reference" >&2
     exit 1
   }
   grep -q 'Platform:.*linux/arm64' <<<"$inspect_output" || {
-    echo "Missing linux/arm64 manifest for $reference" >&2
+    echo "Missing linux/arm64 manifest for $release_reference" >&2
     exit 1
   }
 
-  channel_output="$(inspect_manifest "${image}:${distribution}")"
-  channel_digest="$(awk '/^Digest:/ {print $2; exit}' <<<"$channel_output")"
+  latest_output="$(inspect_manifest "${image}:latest")"
+  latest_digest="$(awk '/^Digest:/ {print $2; exit}' <<<"$latest_output")"
   release_digest="$(awk '/^Digest:/ {print $2; exit}' <<<"$inspect_output")"
-  [[ -n "$channel_digest" && -n "$release_digest" ]] || {
-    echo "Unable to resolve channel and release digests for $distribution" >&2
+  [[ -n "$latest_digest" && -n "$release_digest" ]] || {
+    echo "Unable to resolve latest and release digests for $distribution" >&2
     exit 1
   }
-  [[ "$channel_digest" == "$release_digest" ]] || {
-    echo "Channel and release tags differ for $distribution" >&2
+  [[ "$latest_digest" == "$release_digest" ]] || {
+    echo "Latest and release tags differ for $distribution" >&2
     exit 1
   }
 done
-
-latest_output=""
-if latest_output="$(docker buildx imagetools inspect "${image}:latest" 2>&1)"; then
-  echo "A generic latest tag exists, which is prohibited." >&2
-  exit 1
-elif ! grep -Eqi 'manifest unknown|not found' <<<"$latest_output"; then
-  printf 'Could not confirm absence of the prohibited latest tag.\n%s\n' \
-    "$latest_output" >&2
-  exit 1
-fi
 
 echo "Release manifests verified for $version."

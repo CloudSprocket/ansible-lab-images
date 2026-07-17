@@ -43,10 +43,11 @@ the image.
 ## Supply-chain boundary
 
 Human-readable base tags are paired with immutable manifest digests. Buildx
-Bake provides the distribution matrix, tags and OCI labels. Pull requests run
-native amd64 and arm64 contracts and reject new fixable high or critical
-vulnerabilities. Releases use clean pulls, multi-platform builds, SBOMs and
-maximum BuildKit provenance.
+Bake provides the distribution matrix, per-distribution repositories, tags and
+OCI labels. Each repository exposes only a moving `latest` channel and
+immutable semantic-version releases. Pull requests run native amd64 and arm64
+contracts and reject new fixable high or critical vulnerabilities. Releases
+use clean pulls, multi-platform builds, SBOMs and maximum BuildKit provenance.
 
 Registry credentials are scoped to a protected release environment and never
 enter pull-request workflows or Docker build arguments.
