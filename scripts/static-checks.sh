@@ -13,6 +13,8 @@ for shell_file in "${shell_files[@]}"; do
   bash -n "$shell_file"
 done
 
+bash tests/scripts/verify-manifests-test.sh
+
 if command -v shellcheck >/dev/null 2>&1; then
   shellcheck "${shell_files[@]}"
 fi
