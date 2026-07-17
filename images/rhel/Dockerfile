@@ -51,6 +51,10 @@ COPY --chmod=0600 common/sshd_config /etc/ssh/sshd_config
 COPY --chmod=0755 common/systemd/mask-common-units.sh /usr/local/sbin/mask-common-units
 
 RUN systemctl enable sshd.service \
+    && sed -i \
+       '/^account[[:space:]]*include[[:space:]]*password-auth$/i account    sufficient   pam_succeed_if.so user = learner' \
+       /etc/pam.d/sshd \
+    && grep -qx 'account    sufficient   pam_succeed_if.so user = learner' /etc/pam.d/sshd \
     && /usr/local/sbin/mask-common-units \
     && rm -f /etc/ssh/ssh_host_* \
     && install -d -m 0755 /run/sshd

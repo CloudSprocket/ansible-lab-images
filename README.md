@@ -28,8 +28,8 @@ Every managed-node image provides the same baseline:
 
 - unprivileged SSH mode by default;
 - an unusable `learner` password hash with key-only authentication;
-- passwordless sudo with learner-scoped PAM account checks disabled for
-  disposable lab exercises;
+- passwordless sudo with learner-scoped PAM account validation for disposable
+  lab exercises;
 - public keys supplied at runtime, never baked into an image;
 - SSH host keys generated when a container starts;
 - root login, passwords, forwarding and tunnelling disabled;

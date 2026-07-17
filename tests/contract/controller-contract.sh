@@ -54,6 +54,9 @@ ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "passwordauthentication no"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "permitrootlogin no"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "authenticationmethods publickey"'
 ssh_run 'sudo /usr/sbin/sshd -T | grep -qx "usepam yes"'
+if [[ "$expected_id" == "rocky" ]]; then
+  ssh_run 'sudo grep -Eq "^account[[:space:]]+sufficient[[:space:]]+pam_succeed_if.so[[:space:]]+user[[:space:]]+=[[:space:]]+learner$" /etc/pam.d/sshd'
+fi
 # The awk expression is intentionally evaluated on the managed node.
 # shellcheck disable=SC2016
 ssh_run 'sudo getent shadow learner | awk -F: '\''$2 == "*" {found=1} END {exit !found}'\'''

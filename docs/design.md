@@ -33,9 +33,12 @@ OpenSSH termination and reaps the process.
 Systemd mode sets `LAB_INIT=systemd` and executes `/sbin/init` as PID 1. Docker
 must grant privileged mode, the host cgroup namespace, a writable cgroup mount
 and tmpfs runtime directories. Privileged mode is AppArmor-unconfined, so the
-learner-specific sudo policy skips only PAM account validation and avoids host
-path-based PAM helper profiles. The test suite asserts these settings instead
-of hiding them behind the image.
+learner-specific sudo policy skips PAM account validation. Rocky's SSH PAM
+policy still enforces `pam_sepermit` and `pam_nologin`, then accepts `learner`
+before its shadow-backed account check. These narrow exceptions avoid host
+path-based PAM helper profiles while retaining PAM authentication and session
+handling. The test suite asserts these settings instead of hiding them behind
+the image.
 
 ## Supply-chain boundary
 

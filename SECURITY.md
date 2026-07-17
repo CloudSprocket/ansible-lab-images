@@ -18,10 +18,13 @@ versioned release. See [SUPPORT.md](SUPPORT.md) for distribution lifecycles.
 ## Important limitations
 
 These are disposable lab images, not hardened production servers. The
-`learner` account has passwordless sudo and learner-scoped PAM account checks
-disabled by design. Default SSH mode is unprivileged, but optional systemd mode
-requires `privileged: true`, a writable cgroup mount and unconfined AppArmor.
-Run it only on a trusted development host.
+`learner` account has passwordless sudo. Its sudo policy skips PAM account
+validation, while Rocky SSH keeps `pam_sepermit` and `pam_nologin` before a
+learner-only exception to the shadow-backed account check. Root login, password
+authentication and interactive authentication remain disabled. Default SSH
+mode is unprivileged, but optional systemd mode requires `privileged: true`, a
+writable cgroup mount and unconfined AppArmor. Run it only on a trusted
+development host.
 
 Never expose the SSH ports publicly, mount the Docker socket, reuse lab keys or
 store persistent secrets inside a managed-node container.
