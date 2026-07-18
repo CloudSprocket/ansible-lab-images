@@ -51,7 +51,7 @@ variable "ROCKY10_BASE_DIGEST" {
 }
 
 variable "PYTHON_BASE_DIGEST" {
-  default = "sha256:d3400aa122fa42cf0af0dbe8ec3091b047eac5c8f7e3539f7135e86d855dc015"
+  default = "sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6"
 }
 
 group "default" {
