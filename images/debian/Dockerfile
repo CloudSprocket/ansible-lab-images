@@ -2,7 +2,7 @@
 
 ARG BASE_TARGET=ubuntu-24.04
 
-FROM docker.io/library/ubuntu:24.04@sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90 AS ubuntu-24.04
+FROM docker.io/library/ubuntu:26.04@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb AS ubuntu-24.04
 FROM docker.io/library/debian:13@sha256:fac46bff2e02f51425b6e33b0e1169f55dfb053d83511ca28aa50c09fd5ed7a4 AS debian-13
 
 FROM ${BASE_TARGET} AS managed-node
