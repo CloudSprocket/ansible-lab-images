@@ -15,7 +15,7 @@
       "ansible.posix": "2.2.2"
     },
     "base_image": "docker.io/library/python:3.14-slim",
-    "base_digest": "sha256:d3400aa122fa42cf0af0dbe8ec3091b047eac5c8f7e3539f7135e86d855dc015"
+    "base_digest": "sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6"
   },
   "images": [
     {
