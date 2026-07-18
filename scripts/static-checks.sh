@@ -55,20 +55,27 @@ if rg -n '^\s*uses:\s*[^@[:space:]]+@[^#[:space:]]+' .github/workflows \
   exit 1
 fi
 
-while IFS=$'\t' read -r target digest repository; do
+while IFS=$'\t' read -r target base_image digest repository; do
   case "$target" in
-    ubuntu-2404|debian-13) dockerfile="images/debian/Dockerfile" ;;
-    rocky-9|rocky-10) dockerfile="images/rhel/Dockerfile" ;;
+    ubuntu-2404) dockerfile="images/debian/Dockerfile"; stage="ubuntu-24.04" ;;
+    debian-13) dockerfile="images/debian/Dockerfile"; stage="debian-13" ;;
+    rocky-9|rocky-10) dockerfile="images/rhel/Dockerfile"; stage="$target" ;;
     *) echo "Unknown support-matrix target: $target" >&2; exit 1 ;;
   esac
+  base_image="${base_image//$'\r'/}"
   digest="${digest//$'\r'/}"
   repository="${repository//$'\r'/}"
-  rg -q --fixed-strings "$digest" "$dockerfile" || {
-    echo "Base digest for $target is not pinned in $dockerfile: $digest" >&2
+  expected_from="FROM ${base_image}@${digest} AS ${stage}"
+  rg -q --fixed-strings --line-regexp "$expected_from" "$dockerfile" || {
+    echo "Base image for $target does not match support-matrix.json: $expected_from" >&2
     exit 1
   }
   rg -q --fixed-strings "$digest" docker-bake.hcl || {
     echo "Base digest for $target is not mirrored in docker-bake.hcl: $digest" >&2
+    exit 1
+  }
+  rg -q --fixed-strings "$base_image" docker-bake.hcl || {
+    echo "Base image for $target is not mirrored in docker-bake.hcl: $base_image" >&2
     exit 1
   }
   for repository_file in docker-bake.hcl compose.yml .github/workflows/ci.yml .github/workflows/release.yml scripts/test-image.sh; do
@@ -81,18 +88,24 @@ while IFS=$'\t' read -r target digest repository; do
     echo "Pinned release image for $target is missing from compose.release.yml" >&2
     exit 1
   }
-done < <(python -c 'import json; print("\n".join(f"{i['"'"'target'"'"']}\t{i['"'"'base_digest'"'"']}\t{i['"'"'repository'"'"']}" for i in json.load(open("support-matrix.json", encoding="utf-8"))["images"]))')
+done < <(python -c 'import json; print("\n".join(f"{i['"'"'target'"'"']}\t{i['"'"'base_image'"'"']}\t{i['"'"'base_digest'"'"']}\t{i['"'"'repository'"'"']}" for i in json.load(open("support-matrix.json", encoding="utf-8"))["images"]))')
 
-IFS=$'\t' read -r controller_repository controller_digest controller_core < <(python -c 'import json; c = json.load(open("support-matrix.json", encoding="utf-8"))["controller"]; print(f"{c['"'"'repository'"'"']}\t{c['"'"'base_digest'"'"']}\t{c['"'"'ansible_core'"'"']}")')
+IFS=$'\t' read -r controller_repository controller_base_image controller_digest controller_core < <(python -c 'import json; c = json.load(open("support-matrix.json", encoding="utf-8"))["controller"]; print(f"{c['"'"'repository'"'"']}\t{c['"'"'base_image'"'"']}\t{c['"'"'base_digest'"'"']}\t{c['"'"'ansible_core'"'"']}")')
 controller_repository="${controller_repository//$'\r'/}"
+controller_base_image="${controller_base_image//$'\r'/}"
 controller_digest="${controller_digest//$'\r'/}"
 controller_core="${controller_core//$'\r'/}"
-rg -q --fixed-strings "$controller_digest" images/controller/Dockerfile || {
-  echo "Controller base digest is not pinned in images/controller/Dockerfile" >&2
+controller_from="FROM ${controller_base_image}@${controller_digest}"
+rg -q --fixed-strings --line-regexp "$controller_from" images/controller/Dockerfile || {
+  echo "Controller base image does not match support-matrix.json: $controller_from" >&2
   exit 1
 }
 rg -q --fixed-strings "$controller_digest" docker-bake.hcl || {
   echo "Controller base digest is not mirrored in docker-bake.hcl" >&2
+  exit 1
+}
+rg -q --fixed-strings "$controller_base_image" docker-bake.hcl || {
+  echo "Controller base image is not mirrored in docker-bake.hcl" >&2
   exit 1
 }
 rg -q --fixed-strings "ansible-core==${controller_core}" images/controller/requirements.txt || {

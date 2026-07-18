@@ -22,6 +22,10 @@ updates:
     labels:
       - dependencies
       - container-base
+    ignore:
+      - dependency-name: ubuntu
+        versions:
+          - "> 24.04"
 
   - package-ecosystem: docker
     directory: /images/rhel
