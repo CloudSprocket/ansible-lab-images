@@ -35,7 +35,7 @@ updates:
       - container-base
 
   - package-ecosystem: docker
-    directory: /tests/controller
+    directory: /images/controller
     schedule:
       interval: weekly
       day: monday
@@ -43,10 +43,10 @@ updates:
       timezone: Asia/Dubai
     labels:
       - dependencies
-      - test-infrastructure
+      - container-base
 
   - package-ecosystem: pip
-    directory: /tests/controller
+    directory: /images/controller
     schedule:
       interval: weekly
       day: monday

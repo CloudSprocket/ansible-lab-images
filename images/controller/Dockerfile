@@ -15,12 +15,21 @@ RUN apt-get update \
        openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
-COPY tests/controller/requirements.txt /tmp/requirements.txt
+COPY images/controller/requirements.txt /tmp/requirements.txt
+COPY images/controller/requirements.yml /tmp/requirements.yml
 
 RUN python -m venv /opt/ansible \
     && /opt/ansible/bin/pip install --no-cache-dir --no-compile \
        --requirement /tmp/requirements.txt \
-    && rm -f /tmp/requirements.txt
+    && /opt/ansible/bin/ansible-galaxy collection install \
+       -r /tmp/requirements.yml \
+       -p /usr/share/ansible/collections \
+    && rm -f /tmp/requirements.txt /tmp/requirements.yml
+
+RUN useradd --create-home --shell /bin/bash automation
+
+COPY --chmod=0755 images/controller/entrypoint.sh /usr/local/bin/controller-entrypoint
 
 WORKDIR /work
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/usr/local/bin/controller-entrypoint"]
+CMD ["/bin/bash"]

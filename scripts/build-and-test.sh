@@ -18,7 +18,7 @@ case "$architecture" in
   *) echo "Unsupported Docker architecture: $architecture" >&2; exit 1 ;;
 esac
 
-docker buildx bake -f docker-bake.hcl "$bake_target" test-controller --load \
+docker buildx bake -f docker-bake.hcl "$bake_target" controller --load \
   --set "${bake_target}.platform=${platform}" \
-  --set "test-controller.platform=${platform}"
+  --set "controller.platform=${platform}"
 "$ROOT_DIR/scripts/test-image.sh" "$target"

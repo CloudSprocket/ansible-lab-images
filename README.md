@@ -23,6 +23,16 @@ Each distribution has its own repository. Use a semantic-version tag for a
 reproducible lab or `latest` for the current verified release. See
 [SUPPORT.md](SUPPORT.md) for lifecycle dates.
 
+## Controller image
+
+[`cloudsprocket/ansible-controller`](https://hub.docker.com/r/cloudsprocket/ansible-controller)
+is the matching control node: ansible-core with ansible-lint and the
+`community.general` and `ansible.posix` collections, on amd64 and arm64. It is
+the same image the contract suite uses to test every release, and it is the
+practical route on Windows, which has no native Ansible control node. The
+pinned tool versions for each release are recorded in
+[support-matrix.json](support-matrix.json).
+
 ## Security contract
 
 Every managed-node image provides the same baseline:
@@ -58,10 +68,24 @@ docker compose -f compose.yml -f compose.release.yml up -d
 ssh -i .lab\ssh\id_ed25519 -p 2222 learner@127.0.0.1
 ```
 
-The release overlay pins every distribution to the release version recorded
+The release overlay pins every image to the release version recorded
 in [VERSION](VERSION). Ports 2222 through
 2225 map to Ubuntu, Debian, Rocky Linux 9 and Rocky Linux 10 respectively.
 Stop the estate with the same Compose file arguments followed by `down`.
+
+To run Ansible from the bundled controller instead of installing it locally,
+start it from the `tools` profile on any platform:
+
+```console
+docker compose -f compose.yml -f compose.release.yml --profile tools run --rm controller
+```
+
+The controller starts in `/work` with the lab key installed. Ping every node
+to confirm the estate is up:
+
+```console
+ansible all -i 'ubuntu2404,debian13,rocky9,rocky10,' -m ping -u learner
+```
 
 ## Build from source
 

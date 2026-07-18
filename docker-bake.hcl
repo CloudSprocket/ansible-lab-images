@@ -14,6 +14,10 @@ variable "ROCKY_10_IMAGE" {
   default = "docker.io/cloudsprocket/ansible-node-rocky-10"
 }
 
+variable "CONTROLLER_IMAGE" {
+  default = "docker.io/cloudsprocket/ansible-controller"
+}
+
 variable "VERSION" {
   default = "dev"
 }
@@ -46,16 +50,20 @@ variable "ROCKY10_BASE_DIGEST" {
   default = "sha256:827d37bc128288ccf160ee318bb3cb92d591164cb217e92f8bc61e3982ae1834"
 }
 
+variable "PYTHON_BASE_DIGEST" {
+  default = "sha256:d3400aa122fa42cf0af0dbe8ec3091b047eac5c8f7e3539f7135e86d855dc015"
+}
+
 group "default" {
   targets = ["ubuntu-2404", "debian-13"]
 }
 
 group "all" {
-  targets = ["ubuntu-2404", "debian-13", "rocky-9", "rocky-10"]
+  targets = ["ubuntu-2404", "debian-13", "rocky-9", "rocky-10", "controller"]
 }
 
 group "test" {
-  targets = ["ubuntu-2404", "debian-13", "rocky-9", "rocky-10", "test-controller"]
+  targets = ["ubuntu-2404", "debian-13", "rocky-9", "rocky-10", "controller"]
 }
 
 group "release" {
@@ -64,6 +72,7 @@ group "release" {
     "release-debian-13",
     "release-rocky-9",
     "release-rocky-10",
+    "release-controller",
   ]
 }
 
@@ -154,11 +163,17 @@ target "rocky-10" {
   tags = ["${ROCKY_10_IMAGE}:dev"]
 }
 
-target "test-controller" {
-  context = "."
-  dockerfile = "tests/controller/Dockerfile"
-  platforms = ["linux/amd64", "linux/arm64"]
-  tags = ["cloudsprocket/ansible-contract:${VERSION}"]
+target "controller" {
+  inherits = ["_common"]
+  dockerfile = "images/controller/Dockerfile"
+  labels = {
+    "org.opencontainers.image.title" = "CloudSprocket Ansible controller"
+    "org.opencontainers.image.description" = "Ansible control node with ansible-core, ansible-lint and common collections for lab use"
+    "org.opencontainers.image.base.digest" = PYTHON_BASE_DIGEST
+    "org.opencontainers.image.base.name" = "docker.io/library/python:3.14-slim"
+    "org.cloudsprocket.image.ansible-core" = "2.21.2"
+  }
+  tags = ["${CONTROLLER_IMAGE}:dev"]
 }
 
 target "release-ubuntu-2404" {
@@ -190,5 +205,13 @@ target "release-rocky-10" {
   tags = [
     "${ROCKY_10_IMAGE}:latest",
     "${ROCKY_10_IMAGE}:${VERSION}",
+  ]
+}
+
+target "release-controller" {
+  inherits = ["controller"]
+  tags = [
+    "${CONTROLLER_IMAGE}:latest",
+    "${CONTROLLER_IMAGE}:${VERSION}",
   ]
 }

@@ -10,7 +10,7 @@ docker compose -f compose.yml -f compose.systemd.yml config --quiet
 docker compose -f compose.yml -f compose.release.yml config --quiet
 docker compose -f compose.yml -f compose.release.yml -f compose.systemd.yml config --quiet
 
-mapfile -t shell_files < <(find common scripts tests -type f -name '*.sh' -print | sort)
+mapfile -t shell_files < <(find common images scripts tests -type f -name '*.sh' -print | sort)
 for shell_file in "${shell_files[@]}"; do
   bash -n "$shell_file"
 done
@@ -22,7 +22,7 @@ if command -v shellcheck >/dev/null 2>&1; then
 fi
 
 if command -v hadolint >/dev/null 2>&1; then
-  hadolint images/debian/Dockerfile images/rhel/Dockerfile tests/controller/Dockerfile
+  hadolint images/controller/Dockerfile images/debian/Dockerfile images/rhel/Dockerfile
 fi
 
 if command -v yamllint >/dev/null 2>&1; then
@@ -82,5 +82,36 @@ while IFS=$'\t' read -r target digest repository; do
     exit 1
   }
 done < <(python -c 'import json; print("\n".join(f"{i['"'"'target'"'"']}\t{i['"'"'base_digest'"'"']}\t{i['"'"'repository'"'"']}" for i in json.load(open("support-matrix.json", encoding="utf-8"))["images"]))')
+
+IFS=$'\t' read -r controller_repository controller_digest controller_core < <(python -c 'import json; c = json.load(open("support-matrix.json", encoding="utf-8"))["controller"]; print(f"{c['"'"'repository'"'"']}\t{c['"'"'base_digest'"'"']}\t{c['"'"'ansible_core'"'"']}")')
+controller_repository="${controller_repository//$'\r'/}"
+controller_digest="${controller_digest//$'\r'/}"
+controller_core="${controller_core//$'\r'/}"
+rg -q --fixed-strings "$controller_digest" images/controller/Dockerfile || {
+  echo "Controller base digest is not pinned in images/controller/Dockerfile" >&2
+  exit 1
+}
+rg -q --fixed-strings "$controller_digest" docker-bake.hcl || {
+  echo "Controller base digest is not mirrored in docker-bake.hcl" >&2
+  exit 1
+}
+rg -q --fixed-strings "ansible-core==${controller_core}" images/controller/requirements.txt || {
+  echo "Controller ansible-core pin does not match support-matrix.json" >&2
+  exit 1
+}
+for repository_file in docker-bake.hcl compose.yml .github/workflows/ci.yml .github/workflows/release.yml tests/contract/run.sh; do
+  rg -q --fixed-strings "$controller_repository" "$repository_file" || {
+    echo "Controller repository is missing from $repository_file: $controller_repository" >&2
+    exit 1
+  }
+done
+rg -q --fixed-strings "${controller_repository##*/}" scripts/verify-manifests.sh || {
+  echo "Controller repository is missing from scripts/verify-manifests.sh" >&2
+  exit 1
+}
+rg -q --fixed-strings "${controller_repository}:${version}" compose.release.yml || {
+  echo "Pinned controller release image is missing from compose.release.yml" >&2
+  exit 1
+}
 
 echo "Static checks passed."

@@ -10,8 +10,10 @@ containers equivalent to virtual machines or production servers.
 
 Managed-node images contain only the packages needed to expose a useful lab
 surface: OpenSSH, Python, the distribution package bindings, sudo and systemd.
-The controller and its Ansible version remain external. This prevents target
-images from silently testing against a second automation installation.
+Ansible never enters a managed node, which prevents target images from
+silently testing against a second automation installation. The controller is
+published as its own image, `ansible-controller`, and the contract suite
+drives every managed node from that image.
 
 ## Authentication boundary
 

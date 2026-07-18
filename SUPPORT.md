@@ -17,6 +17,14 @@ Lifecycle dates follow the upstream publishers:
 
 The machine-readable form is [support-matrix.json](support-matrix.json).
 
+## Controller image
+
+`cloudsprocket/ansible-controller` ships ansible-core, ansible-lint and the
+`community.general` and `ansible.posix` collections on amd64 and arm64. It
+follows the project's release cadence and the ansible-core support lifecycle
+rather than a distribution lifecycle. The pinned versions for each release
+are recorded in [support-matrix.json](support-matrix.json).
+
 ## What support means
 
 While a distribution is supported, the project intends to:
