@@ -42,6 +42,8 @@ if ([string]::IsNullOrWhiteSpace($tokenResponse.access_token)) {
 
 $headers = @{ Authorization = "Bearer $($tokenResponse.access_token)" }
 
+$matrix = Get-Content -Path (Join-Path $repoRoot 'support-matrix.json') -Raw | ConvertFrom-Json
+
 $overviewTemplate = @'
 # Ansible lab node: __TITLE__
 
@@ -75,6 +77,38 @@ $distributions = @(
     @{ Name = 'ansible-node-rocky-10'; Title = 'Rocky Linux 10' }
 )
 
+$controllerTemplate = @'
+# Ansible lab controller
+
+Multi-architecture control-node image for driving the CloudSprocket Ansible lab.
+
+## Contents
+
+- ansible-core __CORE__ with ansible-lint __LINT__
+- `community.general` and `ansible.posix` collections
+- OpenSSH client
+
+## Supported platforms
+
+- `linux/amd64`
+- `linux/arm64`
+
+## Tags
+
+- `latest`: current supported release
+- `__VERSION__`: immutable release
+
+## Use
+
+```console
+docker pull cloudsprocket/ansible-controller:__VERSION__
+```
+
+Mount a lab private key at `/keys/id_ed25519` and the entrypoint installs it for the container user. The Compose lab in the source repository wires this up behind the `tools` profile.
+
+Source, Compose lab, documentation and release notes: https://github.com/CloudSprocket/ansible-lab-images
+'@
+
 $repositories = @(
     foreach ($distribution in $distributions) {
         @{
@@ -82,6 +116,11 @@ $repositories = @(
             Description = "$($distribution.Title) managed node for multi-architecture Ansible labs and CI."
             Overview = $overviewTemplate.Replace('__TITLE__', $distribution.Title).Replace('__NAME__', $distribution.Name).Replace('__VERSION__', $Version)
         }
+    }
+    @{
+        Name = 'ansible-controller'
+        Description = 'Ansible control node with ansible-core, ansible-lint and common collections for lab use.'
+        Overview = $controllerTemplate.Replace('__CORE__', $matrix.controller.ansible_core).Replace('__LINT__', $matrix.controller.ansible_lint).Replace('__VERSION__', $Version)
     }
     @{
         Name = 'ansible-node'

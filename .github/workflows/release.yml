@@ -90,13 +90,14 @@ jobs:
         run: |
           notes="$RUNNER_TEMP/release-notes.md"
           {
-            echo "## Managed-node images"
+            echo "## Published images"
             echo
             repositories=(
               docker.io/cloudsprocket/ansible-node-ubuntu-2404
               docker.io/cloudsprocket/ansible-node-debian-13
               docker.io/cloudsprocket/ansible-node-rocky-9
               docker.io/cloudsprocket/ansible-node-rocky-10
+              docker.io/cloudsprocket/ansible-controller
             )
             for repository in "${repositories[@]}"; do
               echo "- \`${repository}:${RELEASE_VERSION}\`"
@@ -105,7 +106,7 @@ jobs:
             echo "Platforms: \`linux/amd64\`, \`linux/arm64\`"
             echo "Stable channel: \`latest\` in each distribution repository"
             echo
-            echo "Every image was tested in SSH and systemd modes with ansible-core 2.21.2."
+            echo "Every managed node was tested in SSH and systemd modes with ansible-core 2.21.2 from the published controller image."
           } > "$notes"
           verify_args=()
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then

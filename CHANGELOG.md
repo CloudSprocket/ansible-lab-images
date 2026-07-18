@@ -4,8 +4,22 @@ All notable changes are documented here.
 
 ## Unreleased
 
+## 0.3.0 - 2026-07-17
+
+### Added
+
+- Published `cloudsprocket/ansible-controller`, a control-node image with
+  ansible-core 2.21.2, ansible-lint 26.6.0 and the `community.general` and
+  `ansible.posix` collections.
+- Added a `tools` profile controller service to the Compose lab with automatic
+  lab-key installation.
+
 ### Changed
 
+- Converged the CI contract controller onto the published controller image and
+  added it to the vulnerability gate.
+- Allowed the systemd contract to run on hosts without AppArmor, such as
+  Docker Desktop.
 - Tracked the Docker Hub metadata script in `scripts/` and derived its tag
   references from `VERSION`.
 - Documented the release-pin update and the Docker Hub description refresh in

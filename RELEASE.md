@@ -14,6 +14,7 @@ The following public Docker Hub repositories must exist before a release:
 - `cloudsprocket/ansible-node-debian-13`
 - `cloudsprocket/ansible-node-rocky-9`
 - `cloudsprocket/ansible-node-rocky-10`
+- `cloudsprocket/ansible-controller`
 
 ## Release requirements
 
@@ -29,7 +30,7 @@ The following public Docker Hub repositories must exist before a release:
 
 ## What the workflow publishes
 
-For each distribution repository, the workflow creates:
+For each image repository, the workflow creates:
 
 - a moving `latest` tag;
 - an immutable semantic-version tag;
@@ -49,10 +50,11 @@ new immutable tag:
 .\scripts\update-dockerhub-metadata.ps1 -Apply
 ```
 
-The script reads `VERSION`, authenticates with the Docker Hub credentials held
-by Docker Desktop and updates the four distribution repositories plus the
-deprecated combined repository. Run it without `-Apply` to preview the current
-state first.
+The script reads `VERSION` and `support-matrix.json`, authenticates with the
+Docker Hub credentials held by Docker Desktop and updates the four
+distribution repositories, the controller repository and the deprecated
+combined repository. Run it without `-Apply` to preview the current state
+first.
 
 ## Rollback
 

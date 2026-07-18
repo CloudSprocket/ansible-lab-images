@@ -1,10 +1,22 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "tested_ansible_core": "2.21.2",
   "architectures": [
     "amd64",
     "arm64"
   ],
+  "controller": {
+    "target": "controller",
+    "repository": "docker.io/cloudsprocket/ansible-controller",
+    "ansible_core": "2.21.2",
+    "ansible_lint": "26.6.0",
+    "collections": {
+      "community.general": "13.2.0",
+      "ansible.posix": "2.2.2"
+    },
+    "base_image": "docker.io/library/python:3.14-slim",
+    "base_digest": "sha256:d3400aa122fa42cf0af0dbe8ec3091b047eac5c8f7e3539f7135e86d855dc015"
+  },
   "images": [
     {
       "target": "ubuntu-2404",

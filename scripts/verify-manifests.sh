@@ -16,6 +16,7 @@ declare -A repository_names=(
   [debian-13]="ansible-node-debian-13"
   [rocky-9]="ansible-node-rocky-9"
   [rocky-10]="ansible-node-rocky-10"
+  [controller]="ansible-controller"
 )
 
 [[ "$max_attempts" =~ ^[1-9][0-9]*$ ]] || {
@@ -50,7 +51,7 @@ inspect_manifest() {
   printf '%s\n' "$inspect_output"
 }
 
-for distribution in ubuntu-24.04 debian-13 rocky-9 rocky-10; do
+for distribution in ubuntu-24.04 debian-13 rocky-9 rocky-10 controller; do
   image="${image_namespace}/${repository_names[$distribution]}"
   release_reference="${image}:${version}"
   inspect_output="$(inspect_manifest "$release_reference")"

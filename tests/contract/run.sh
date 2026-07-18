@@ -104,7 +104,7 @@ run_controller_contract() {
     --network "$network" \
     --mount "type=bind,source=${key_path},target=/keys/id_ed25519,readonly" \
     --mount "type=bind,source=${tests_path},target=/tests,readonly" \
-    cloudsprocket/ansible-contract:dev \
+    docker.io/cloudsprocket/ansible-controller:dev \
     /tests/contract/controller-contract.sh \
     "$mode" "$container" /keys/id_ed25519 \
     "$expected_id" "$expected_major" "$expected_distribution"; then
@@ -158,7 +158,9 @@ docker run -d \
 
 wait_for_health "$systemd_container"
 [[ "$(docker inspect --format '{{.HostConfig.Privileged}}' "$systemd_container")" == "true" ]]
-[[ "$(docker inspect --format '{{.AppArmorProfile}}' "$systemd_container")" == "unconfined" ]]
+apparmor_profile="$(docker inspect --format '{{.AppArmorProfile}}' "$systemd_container")"
+# Hosts without AppArmor, such as Docker Desktop, report an empty profile.
+[[ "$apparmor_profile" == "unconfined" || -z "$apparmor_profile" ]]
 [[ "$(docker exec "$systemd_container" cat /proc/1/comm)" == "systemd" ]]
 
 service_name="sshd.service"

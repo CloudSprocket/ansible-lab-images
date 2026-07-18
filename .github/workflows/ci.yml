@@ -50,9 +50,9 @@ jobs:
             docker.io/hadolint/hadolint:v2.14.0-alpine@sha256:7aba693c1442eb31c0b015c129697cb3b6cb7da589d85c7562f9deb435a6657c
         run: |
           dockerfiles=(
+            images/controller/Dockerfile
             images/debian/Dockerfile
             images/rhel/Dockerfile
-            tests/controller/Dockerfile
           )
           for dockerfile in "${dockerfiles[@]}"; do
             docker run --rm -i \
@@ -140,10 +140,10 @@ jobs:
           if [[ "$PULL_BASES" == "true" ]]; then
             pull_args+=(--pull)
           fi
-          docker buildx bake -f docker-bake.hcl "$BUILD_TARGET" test-controller --load \
+          docker buildx bake -f docker-bake.hcl "$BUILD_TARGET" controller --load \
             "${pull_args[@]}" \
             --set "${BUILD_TARGET}.platform=${BUILD_PLATFORM}" \
-            --set "test-controller.platform=${BUILD_PLATFORM}"
+            --set "controller.platform=${BUILD_PLATFORM}"
 
       - name: Run SSH, Ansible, idempotency and systemd contracts
         run: ./scripts/test-image.sh "${{ matrix.contract_target }}"
@@ -152,6 +152,16 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
           image-ref: ${{ matrix.image }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+          vuln-type: os,library
+
+      - name: Scan controller candidate for fixable high-severity vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          image-ref: docker.io/cloudsprocket/ansible-controller:dev
           format: table
           exit-code: "1"
           ignore-unfixed: true

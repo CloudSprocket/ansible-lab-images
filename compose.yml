@@ -43,6 +43,23 @@ services:
     ports:
       - "127.0.0.1:2225:22"
 
+  controller:
+    image: docker.io/cloudsprocket/ansible-controller:dev
+    pull_policy: never
+    profiles:
+      - tools
+    hostname: controller
+    container_name: ansible-controller
+    networks:
+      - lab
+    environment:
+      ANSIBLE_HOST_KEY_CHECKING: "False"
+    volumes:
+      - ./.lab/ssh:/keys:ro
+      - ./:/work
+    stdin_open: true
+    tty: true
+
 secrets:
   authorized_keys:
     file: ./.lab/ssh/authorized_keys
