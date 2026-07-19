@@ -112,6 +112,9 @@ run_controller_contract() {
   fi
 }
 
+"$ROOT_DIR/tests/contract/controller-image.sh" \
+  docker.io/cloudsprocket/ansible-controller:dev
+
 ssh-keygen -q -t ed25519 -N "" -C "ansible-contract" -f "$temp_dir/id_ed25519"
 public_key_path="$(docker_path "$temp_dir/id_ed25519.pub")"
 

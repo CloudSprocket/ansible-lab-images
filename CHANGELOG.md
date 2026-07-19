@@ -4,6 +4,19 @@ All notable changes are documented here.
 
 ## Unreleased
 
+## 0.3.1 - 2026-07-18
+
+### Fixed
+
+- Restored the controller tool PATH in login shells. `bash -l`, `su -` and
+  login-shell CI runners reported `ansible: command not found` because
+  `/etc/profile` resets the PATH prefix set by `ENV`.
+
+### Added
+
+- Added a controller image contract covering both shell forms, the pinned
+  collections and the unprivileged account.
+
 ## 0.3.0 - 2026-07-17
 
 ### Added

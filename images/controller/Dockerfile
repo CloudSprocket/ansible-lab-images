@@ -26,6 +26,11 @@ RUN python -m venv /opt/ansible \
        -p /usr/share/ansible/collections \
     && rm -f /tmp/requirements.txt /tmp/requirements.yml
 
+# A login shell sources /etc/profile, which resets PATH and drops the prefix
+# set by ENV, so the tools need a profile drop-in as well.
+RUN printf 'export PATH=/opt/ansible/bin:$PATH\n' > /etc/profile.d/ansible.sh \
+    && chmod 0644 /etc/profile.d/ansible.sh
+
 RUN useradd --create-home --shell /bin/bash automation
 
 COPY --chmod=0755 images/controller/entrypoint.sh /usr/local/bin/controller-entrypoint
