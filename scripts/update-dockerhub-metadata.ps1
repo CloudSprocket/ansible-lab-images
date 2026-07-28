@@ -67,7 +67,11 @@ docker pull cloudsprocket/__NAME__:__VERSION__
 
 Safe, key-only SSH is the default. Privileged systemd mode is opt-in through the Compose systemd overlay in the source repository.
 
-Source, Compose lab, documentation and release notes: https://github.com/CloudSprocket/ansible-lab-images
+## Links
+
+- Source, Compose lab, documentation and release notes: https://github.com/CloudSprocket/ansible-lab-images
+- Contributing guidelines: https://github.com/CloudSprocket/ansible-lab-images/blob/main/CONTRIBUTING.md
+- Project website: https://labs.cloudsprocket.org/
 '@
 
 $distributions = @(
@@ -106,7 +110,11 @@ docker pull cloudsprocket/ansible-controller:__VERSION__
 
 Mount a lab private key at `/keys/id_ed25519` and the entrypoint installs it for the container user. The Compose lab in the source repository wires this up behind the `tools` profile.
 
-Source, Compose lab, documentation and release notes: https://github.com/CloudSprocket/ansible-lab-images
+## Links
+
+- Source, Compose lab, documentation and release notes: https://github.com/CloudSprocket/ansible-lab-images
+- Contributing guidelines: https://github.com/CloudSprocket/ansible-lab-images/blob/main/CONTRIBUTING.md
+- Project website: https://labs.cloudsprocket.org/
 '@
 
 $repositories = @(
@@ -139,7 +147,11 @@ Use the distribution-specific repositories for v0.2.0 and later:
 
 The new layout keeps the repository name focused on the operating system and uses tags only for release versions, such as `0.2.0` and `latest`.
 
-Migration guidance and release notes: https://github.com/CloudSprocket/ansible-lab-images
+## Links
+
+- Migration guidance and release notes: https://github.com/CloudSprocket/ansible-lab-images
+- Contributing guidelines: https://github.com/CloudSprocket/ansible-lab-images/blob/main/CONTRIBUTING.md
+- Project website: https://labs.cloudsprocket.org/
 '@
     }
 )
